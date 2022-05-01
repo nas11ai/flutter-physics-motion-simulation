@@ -120,4 +120,5 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/flutter,visualstudiocode,windows
 
 windows
+winuwp
 uniformly_accelerated_motion.iml
