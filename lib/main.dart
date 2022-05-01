@@ -103,7 +103,7 @@ class _MyAppState extends State<MyApp> {
   void _launchToEarth(int _duration) {
     Timer.periodic(Duration(milliseconds: _duration), (timer) {
       setState(() {
-        if (_yValue >= 1.11) {
+        if (_yValue >= 1.21) {
           accel = 0.0;
           _yValue = 1.0;
           timer.cancel();
@@ -138,7 +138,7 @@ class _MyAppState extends State<MyApp> {
             height: height,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.red,
+              color: Colors.blue,
             ),
             child: const Center(
               child: Text(
@@ -204,6 +204,8 @@ class _MyAppState extends State<MyApp> {
             SizedBox(
               width: 800,
               child: Slider(
+                activeColor: Colors.green[300],
+                thumbColor: Colors.black,
                 value: _xValue,
                 onChanged: (double newValue) {
                   setState(() {
@@ -227,6 +229,8 @@ class _MyAppState extends State<MyApp> {
               child: SizedBox(
                 width: 540,
                 child: Slider(
+                  activeColor: Colors.green[300],
+                  thumbColor: Colors.black,
                   value: _yValue,
                   onChanged: (double newValue) {
                     setState(() {
@@ -234,14 +238,14 @@ class _MyAppState extends State<MyApp> {
                         if (_yValue >= 1.0) {
                           isDown = false;
                         }
-                        width += 0.3;
-                        height += 0.3;
+                        width += 0.1;
+                        height += 0.1;
                       } else {
                         if (_yValue <= -1.0) {
                           isDown = true;
                         }
-                        width -= 0.3;
-                        height -= 0.3;
+                        width -= 0.1;
+                        height -= 0.1;
                       }
                       _yValue = newValue;
                     });
@@ -272,6 +276,7 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blue,
       ),
       home: Scaffold(
+        backgroundColor: Colors.grey[100],
         body: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -282,6 +287,7 @@ class _MyAppState extends State<MyApp> {
                   width: 800,
                   height: 600,
                   decoration: BoxDecoration(
+                    color: Colors.white,
                     border: Border.all(
                       color: Colors.black,
                     ),
