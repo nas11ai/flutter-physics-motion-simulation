@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+import 'alterposition.dart';
+import 'ballanimation.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -128,10 +131,10 @@ class _MyAppState extends State<MyApp> {
     //     : 0;
     final Widget ball = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
-      child: AnimatedAlign(
+      child: AnimatedBallAlign(
         duration: const Duration(milliseconds: 100),
         alignment: Alignment(_xValue, _yValue),
-        child: Transform.rotate(
+        child: AlterPosition.rotate(
           angle: _degree * math.pi / 180,
           child: Container(
             width: width,
