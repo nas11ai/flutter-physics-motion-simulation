@@ -1,10 +1,8 @@
 import 'dart:async';
-
-import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-import 'alterposition.dart';
-import 'ballanimation.dart';
+import 'package:flutter/material.dart';
+import 'ball.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,108 +16,118 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  double _xValue = 0.0;
+  double maxXValue = 750;
+  double maxYValue = 550;
 
-  double _yValue = 1.1;
+  double minXValue = 50.0;
+  double minYValue = 50.0;
 
-  double _degree = 0;
+  double _xValue = 375.0;
+  double _yValue = 550.0;
 
   int _velocity = 0;
 
-  bool isRight = true;
+  int accel = 50;
 
-  bool isLeft = true;
+  int friction = 1;
 
-  bool isDown = true;
-
-  double accel = 0.0;
-
-  double width = 100.0;
-  double height = 100.0;
+  double canvasWidth = 800.0;
+  double canvasHeight = 600.0;
 
   TextEditingController _velocityController = TextEditingController();
+  final _ballHeightController = TextEditingController();
 
   void _addXValue() {
-    if (_velocity > 0 && _xValue < 1.5) {
-      _velocity -= 1;
-      _xValue += (_velocity / 800);
-      _degree += 15;
-      _velocityController.text = _velocity.toString();
-    }
+    setState(() {
+      if (_velocity > 0) {
+        if (_xValue + _velocity >= maxXValue) {
+          _xValue -= _velocity;
+        } else {
+          _xValue += _velocity;
+          _velocity -= friction;
+          _velocityController.text = _velocity.toString();
+        }
+      }
+    });
   }
 
   void _reduceXValue() {
-    if (_velocity > 0 && _xValue > -1.5) {
-      _velocity -= 1;
-      _xValue -= (_velocity / 800);
-      _degree -= 15;
-      _velocityController.text = _velocity.toString();
-    }
+    setState(() {
+      if (_velocity > 0) {
+        if (_xValue - _velocity <= minXValue) {
+          _xValue += _velocity;
+        } else {
+          _xValue -= _velocity;
+          _velocity -= friction;
+          _velocityController.text = _velocity.toString();
+        }
+      }
+    });
   }
 
   void _launchToRight(int _duration) {
     Timer.periodic(Duration(milliseconds: _duration), (timer) {
-      if (_velocity <= 0) {
-        timer.cancel();
-      }
-      if (isRight) {
-        setState(_addXValue);
-        if (_xValue + (_velocity / 800) > 1) {
-          isRight = false;
+      setState(() {
+        if (_velocity != 0) {
+          if (_xValue + _velocity >= maxXValue ||
+              _xValue + _velocity <= minXValue) {
+            _velocity *= -1;
+            friction *= -1;
+          }
+          _xValue += _velocity;
+          _velocity -= friction;
+          _velocityController.text = _velocity.abs().toString();
+        } else {
+          timer.cancel();
+          _velocity = 0;
         }
-      } else {
-        setState(_reduceXValue);
-        if (_xValue - (_velocity / 800) < -1) {
-          isRight = true;
-        }
-      }
+      });
     });
   }
 
   void _launchToLeft(int _duration) {
     Timer.periodic(Duration(milliseconds: _duration), (timer) {
-      if (_velocity <= 0) {
-        timer.cancel();
-      }
-      if (isLeft) {
-        setState(_reduceXValue);
-        if (_xValue - (_velocity / 800) < -1) {
-          isLeft = false;
+      setState(() {
+        if (_velocity != 0) {
+          if (_xValue - _velocity >= maxXValue ||
+              _xValue - _velocity <= minXValue) {
+            _velocity *= -1;
+            friction *= -1;
+          }
+          _xValue -= _velocity;
+          _velocity -= friction;
+          _velocityController.text = _velocity.abs().toString();
+        } else {
+          timer.cancel();
+          _velocity = 0;
         }
-      } else {
-        setState(_addXValue);
-        if (_xValue + (_velocity / 800) > 1) {
-          isLeft = true;
-        }
-      }
+      });
     });
   }
 
   void _addYValue() {
-    if (_yValue < 1.0 && accel >= 0.0) {
-      _yValue += accel;
-      width += 2.0;
-      height += 2.0;
-    }
+    setState(() {
+      if (_yValue + accel <= maxYValue && accel >= 0) {
+        _yValue += accel;
+        accel += 1;
+      }
+    });
   }
 
   void _launchToEarth(int _duration) {
     Timer.periodic(Duration(milliseconds: _duration), (timer) {
       setState(() {
-        if (_yValue >= 1.21) {
-          accel = 0.0;
-          _yValue = 1.0;
+        if (_yValue != maxYValue || accel != 0) {
+          _yValue += accel;
+          if (_yValue > maxYValue) {
+            _yValue = math.max(0, math.min(_yValue, maxYValue));
+            accel *= -1;
+            accel = (accel * 0.5).floor();
+          }
+          accel += 1;
+        } else {
           timer.cancel();
         }
-        if (_yValue >= 0.8) {
-          accel *= -1;
-          width -= 3;
-          height -= 3;
-        }
-        accel += 0.1;
-        width += 1;
-        height += 1;
-        _yValue += accel;
       });
     });
   }
@@ -129,35 +137,8 @@ class _MyAppState extends State<MyApp> {
     // int _duration = _velocity > 0
     //     ? ((_velocity / (_velocity * 0.01)) - (_velocity * 0.1) + 10).floor()
     //     : 0;
-    final Widget ball = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
-      child: AnimatedBallAlign(
-        duration: const Duration(milliseconds: 100),
-        alignment: Alignment(_xValue, _yValue),
-        child: AlterPosition.rotate(
-          angle: _degree * math.pi / 180,
-          child: Container(
-            width: width,
-            height: height,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.blue,
-            ),
-            child: const Center(
-              child: Text(
-                'BOLA INI BOI',
-                style: TextStyle(
-                  fontSize: 8.0,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
 
-    final Widget _velocityTextField = Padding(
+    Widget _velocityTextField = Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: SizedBox(
             width: 100,
@@ -186,7 +167,7 @@ class _MyAppState extends State<MyApp> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircleButton(
-                  handleOnPressed: () => setState(_reduceXValue),
+                  handleOnPressed: () => {_reduceXValue()},
                   icon: Icons.arrow_left,
                 ),
                 CircleButton(
@@ -199,7 +180,7 @@ class _MyAppState extends State<MyApp> {
                   icon: Icons.keyboard_double_arrow_right,
                 ),
                 CircleButton(
-                  handleOnPressed: () => setState(_addXValue),
+                  handleOnPressed: () => {_addXValue()},
                   icon: Icons.arrow_right,
                 ),
               ],
@@ -215,8 +196,8 @@ class _MyAppState extends State<MyApp> {
                     _xValue = newValue;
                   });
                 },
-                min: -1.0,
-                max: 1.0,
+                min: minXValue,
+                max: maxXValue,
               ),
             )
           ],
@@ -237,29 +218,16 @@ class _MyAppState extends State<MyApp> {
                   value: _yValue,
                   onChanged: (double newValue) {
                     setState(() {
-                      if (isDown) {
-                        if (_yValue >= 1.0) {
-                          isDown = false;
-                        }
-                        width += 0.1;
-                        height += 0.1;
-                      } else {
-                        if (_yValue <= -1.0) {
-                          isDown = true;
-                        }
-                        width -= 0.1;
-                        height -= 0.1;
-                      }
                       _yValue = newValue;
                     });
                   },
-                  min: -1.0,
-                  max: 1.5,
+                  min: minXValue,
+                  max: maxYValue,
                 ),
               ),
             ),
             CircleButton(
-              handleOnPressed: () => setState(_addYValue),
+              handleOnPressed: () => {_addYValue()},
               icon: Icons.keyboard_arrow_down,
             ),
             CircleButton(
@@ -275,6 +243,7 @@ class _MyAppState extends State<MyApp> {
 
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -287,15 +256,15 @@ class _MyAppState extends State<MyApp> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 800,
-                  height: 600,
+                  width: canvasWidth,
+                  height: canvasHeight,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(
                       color: Colors.black,
                     ),
                   ),
-                  child: ball,
+                  child: Ball(x: _xValue, y: _yValue),
                 ),
                 _xValueButtons
               ],
