@@ -31,6 +31,8 @@ class _MyAppState extends State<MyApp> {
 
   int friction = 1;
 
+  int radius = 40;
+
   double canvasWidth = 800.0;
   double canvasHeight = 600.0;
 
@@ -110,12 +112,16 @@ class _MyAppState extends State<MyApp> {
       if (_yValue + accel <= maxYValue && accel >= 0) {
         _yValue += accel;
         accel += 1;
+        if (radius <= 40) {
+          radius += 4;
+        }
       }
     });
   }
 
   void _launchToEarth(int _duration) {
     Timer.periodic(Duration(milliseconds: _duration), (timer) {
+      var counter = 1;
       setState(() {
         if (_yValue != maxYValue || accel != 0) {
           _yValue += accel;
@@ -123,8 +129,12 @@ class _MyAppState extends State<MyApp> {
             _yValue = math.max(0, math.min(_yValue, maxYValue));
             accel *= -1;
             accel = (accel * 0.5).floor();
+            counter *= -1;
           }
           accel += 1;
+          if (radius <= 40) {
+            radius += counter;
+          }
         } else {
           timer.cancel();
         }
@@ -219,6 +229,7 @@ class _MyAppState extends State<MyApp> {
                   onChanged: (double newValue) {
                     setState(() {
                       _yValue = newValue;
+                      radius = (newValue / 13).floor();
                     });
                   },
                   min: minXValue,
@@ -231,7 +242,7 @@ class _MyAppState extends State<MyApp> {
               icon: Icons.keyboard_arrow_down,
             ),
             CircleButton(
-              handleOnPressed: () => {_launchToEarth(100)},
+              handleOnPressed: () => {_launchToEarth(1)},
               icon: Icons.keyboard_double_arrow_down,
             ),
             // Text('yValue: ${_yValue.floor().toString()}'),
@@ -264,7 +275,11 @@ class _MyAppState extends State<MyApp> {
                       color: Colors.black,
                     ),
                   ),
-                  child: Ball(x: _xValue, y: _yValue),
+                  child: Ball(
+                    x: _xValue,
+                    y: _yValue,
+                    radius: radius,
+                  ),
                 ),
                 _xValueButtons
               ],

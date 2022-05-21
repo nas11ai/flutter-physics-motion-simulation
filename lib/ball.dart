@@ -11,7 +11,9 @@ Iterable<int> get positiveIntegers sync* {
 class Ball extends StatefulWidget {
   final double x;
   final double y;
-  const Ball({Key? key, required this.x, required this.y}) : super(key: key);
+  final int radius;
+  const Ball({Key? key, required this.x, required this.y, required this.radius})
+      : super(key: key);
 
   @override
   State<Ball> createState() => _BallState();
@@ -21,7 +23,7 @@ class _BallState extends State<Ball> {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: BallPainter(x: widget.x, y: widget.y),
+      painter: BallPainter(x: widget.x, y: widget.y, radius: widget.radius),
       child: Container(),
     );
   }
@@ -30,12 +32,11 @@ class _BallState extends State<Ball> {
 class BallPainter extends CustomPainter {
   final double x;
   final double y;
+  final int radius;
 
-  BallPainter({required this.x, required this.y});
+  BallPainter({required this.x, required this.y, required this.radius});
   @override
   void paint(Canvas canvas, Size size) {
-    var radius = 50;
-
     Iterable<Offset> createCircle(int wheel) {
       return positiveIntegers
           .map((e) => e * 360.0 / wheel)
@@ -67,7 +68,7 @@ class BallPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+  bool shouldRepaint(BallPainter oldDelegate) {
     return true;
   }
 }
