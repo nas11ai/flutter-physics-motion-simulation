@@ -181,12 +181,12 @@ class _MyAppState extends State<MyApp> {
                   icon: Icons.arrow_left,
                 ),
                 CircleButton(
-                  handleOnPressed: () => {_launchToLeft(100)},
+                  handleOnPressed: () => {_launchToLeft(50)},
                   icon: Icons.keyboard_double_arrow_left,
                 ),
                 _velocityTextField,
                 CircleButton(
-                  handleOnPressed: () => {_launchToRight(100)},
+                  handleOnPressed: () => {_launchToRight(50)},
                   icon: Icons.keyboard_double_arrow_right,
                 ),
                 CircleButton(
